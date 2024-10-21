@@ -17,7 +17,7 @@ def search_and_download_images(query, num_images, api_key, cx, download_folder='
     url = "https://www.googleapis.com/customsearch/v1"
     params = {
         'q': query,
-        'num': 10,  # API allows max 10 results per query
+        'num': 50,  
         'imgSize': 'medium',
         'searchType': 'image',
         'key': api_key,
@@ -99,35 +99,32 @@ def send_email_with_attachment(receiver_email, subject, body, attachment_path, s
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
-# Streamlit UI
 st.title("Google Image Downloader & Emailer")
 st.write("Download images from Google and send them via email.")
 
-# Input Fields
 receiver_email = st.text_input("Enter the receiver's email address:")
 query = st.text_input("Enter the search query for images:")
 num_images = st.number_input("Enter the number of images to download (max 100):", min_value=1, max_value=100, value=5)
 
-# Your email credentials
 sender_email = 'shreeya.kesarwani65@gmail.com'
 sender_password = 'mkeq kdey ockq njrx'
-API_KEY = 'AIzaSyB0q7Yp7z-IVBXq49Yer8DqjxGmm-MpKqE'  # Replace with your actual API Key
+API_KEY = 'AIzaSyB0q7Yp7z-IVBXq49Yer8DqjxGmm-MpKqE' 
 CX = '200a8ead8a11e4a3b'
 
 if st.button('Download and Send Images'):
     if not all([API_KEY, CX, sender_email, sender_password]):
         st.error("Error: Missing API credentials.")
     else:
-        # Download images
+        
         downloaded_images = search_and_download_images(query, num_images, API_KEY, CX)
 
         if len(downloaded_images) < num_images:
             st.warning(f"Only {len(downloaded_images)} images were downloaded.")
 
-        # Compress images to zip
+        
         zip_file = compress_images_to_zip(downloaded_images)
 
-        # Send email with attachment
+        
         send_email_with_attachment(
             receiver_email=receiver_email,
             subject=f'Your requested images for "{query}"',
@@ -137,21 +134,8 @@ if st.button('Download and Send Images'):
             sender_password=sender_password
         )
 
-        # Clean up
+        
         os.remove(zip_file)
         for file in downloaded_images:
             os.remove(file)
-        shutil.rmtree(os.path.dirname(downloaded_images[0]))  # Remove the images folder and its contents
-
-        # dir_path = os.path.dirname(downloaded_images[0])
-        # for file in os.listdir(dir_path):
-        #     file_path = os.path.join(dir_path, file)
-        #     if os.path.isfile(file_path):
-        #         os.unlink(file_path)
-        # os.rmdir(dir_path)
-
-        # # Clean up
-        # os.remove(zip_file)
-        # for file in downloaded_images:
-        #     os.remove(file)
-        # os.rmdir(os.path.dirname(downloaded_images[0]))  # Remove the images folder
+        shutil.rmtree(os.path.dirname(downloaded_images[0]))
